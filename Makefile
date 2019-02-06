@@ -585,6 +585,7 @@ TESTS = \
 	compaction_picker_test \
 	version_builder_test \
 	file_indexer_test \
+	flink_compaction_filter_test \
 	write_batch_test \
 	write_batch_with_index_test \
 	write_controller_test\
@@ -1404,7 +1405,7 @@ cassandra_row_merge_test: utilities/cassandra/cassandra_row_merge_test.o utiliti
 cassandra_serialize_test: utilities/cassandra/cassandra_serialize_test.o $(LIBOBJECTS) $(TESTHARNESS)
 	$(AM_LINK)
 
-hash_table_test: utilities/persistent_cache/hash_table_test.o $(LIBOBJECTS) $(TESTHARNESS)
+flink_compaction_filter_test: utilities/flink/flink_compaction_filter_test.o $(LIBOBJECTS) $(TESTHARNESS)
 	$(AM_LINK)
 
 histogram_test: monitoring/histogram_test.o $(LIBOBJECTS) $(TESTHARNESS)
