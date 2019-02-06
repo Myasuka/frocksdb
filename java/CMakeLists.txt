@@ -210,6 +210,7 @@ set(JAVA_MAIN_CLASSES
   src/main/java/org/rocksdb/StringAppendOperator.java
   src/main/java/org/rocksdb/TableFilter.java
   src/main/java/org/rocksdb/TableProperties.java
+  src/main/java/org/rocksdb/StringAppendOperatorWithVariableDelimitor.java
   src/main/java/org/rocksdb/TableFormatConfig.java
   src/main/java/org/rocksdb/ThreadType.java
   src/main/java/org/rocksdb/ThreadStatus.java
@@ -447,6 +448,7 @@ if(${CMAKE_VERSION} VERSION_LESS "3.11.4" OR (${Java_VERSION_MINOR} STREQUAL "7"
           org.rocksdb.SstFileReaderIterator
           org.rocksdb.Statistics
           org.rocksdb.StringAppendOperator
+          org.rocksdb.StringAppendOperatorWithVariableDelimitor
           org.rocksdb.TableFormatConfig
           org.rocksdb.ThreadStatus
           org.rocksdb.TimedEnv
