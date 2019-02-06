@@ -674,6 +674,7 @@ set(SOURCES
         utilities/debug.cc
         utilities/env_mirror.cc
         utilities/env_timed.cc
+        utilities/flink/flink_compaction_filter.cc
         utilities/leveldb_options/leveldb_options.cc
         utilities/memory/memory_util.cc
         utilities/merge_operators/bytesxor.cc
@@ -1016,6 +1017,7 @@ if(WITH_TESTS AND CMAKE_BUILD_TYPE STREQUAL "Debug")
         utilities/cassandra/cassandra_format_test.cc
         utilities/cassandra/cassandra_row_merge_test.cc
         utilities/cassandra/cassandra_serialize_test.cc
+        utilities/flink/flink_compaction_filter_test.cc
         utilities/checkpoint/checkpoint_test.cc
         utilities/memory/memory_test.cc
         utilities/merge_operators/string_append/stringappend_test.cc
