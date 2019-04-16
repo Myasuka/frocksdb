@@ -2,6 +2,11 @@
 ## 5.18.4 (3/3/2020)
 * Various fixes for ARM64 support (#6250)
 * Fix JEMALLOC_CXX_THROW macro missing from older Jemalloc versions, causing build failures on some platforms.
+# FRocksdb Change Log
+
+# 5.17.2-artisans (07/02/2019)
+* [Flink TTL] compaction filter for background cleanup of state with time-to-live
+* [Flink ListState] Separator-free merge operator
 
 ## 5.18.3 (2/11/2019)
 ### Bug Fixes
