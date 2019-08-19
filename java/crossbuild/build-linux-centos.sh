@@ -5,8 +5,13 @@ set -e
 # remove fixed relesever variable present in the hanscode boxes
 sudo rm -f /etc/yum/vars/releasever
 
+sudo yum -y update ca-certificates
+sudo yum -y update curl
+
 # enable EPEL
 sudo yum -y install epel-release
+
+sudo sed -i "s/mirrorlist=https/mirrorlist=http/" /etc/yum.repos.d/epel.repo
 
 # install all required packages for rocksdb that are available through yum
 sudo yum -y install openssl java-1.7.0-openjdk-devel zlib-devel bzip2-devel lz4-devel snappy-devel libzstd-devel jemalloc-devel
@@ -22,7 +27,7 @@ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib
 
 # set java home so we can build rocksdb jars
 export JAVA_HOME=/usr/lib/jvm/java-1.7.0
-
+export DEBUG_LEVEL=0
 # build rocksdb
 cd /rocksdb
 scl enable devtoolset-2 'make jclean clean'

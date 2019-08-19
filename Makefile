@@ -1725,12 +1725,8 @@ libz.a:
 
 libbz2.a:
 	-rm -rf bzip2-$(BZIP2_VER)
-	curl -O -L ${BZIP2_DOWNLOAD_BASE}/$(BZIP2_VER)/bzip2-$(BZIP2_VER).tar.gz
-	BZIP2_SHA256_ACTUAL=`$(SHA256_CMD) bzip2-$(BZIP2_VER).tar.gz | cut -d ' ' -f 1`; \
-	if [ "$(BZIP2_SHA256)" != "$$BZIP2_SHA256_ACTUAL" ]; then \
-		echo bzip2-$(BZIP2_VER).tar.gz checksum mismatch, expected=\"$(BZIP2_SHA256)\" actual=\"$$BZIP2_SHA256_ACTUAL\"; \
-		exit 1; \
-	fi
+	#wget http://etaose.oss-cn-hangzhou-zmf.aliyuncs.com/146333%2Fbzip2-1.0.6.tar.gz\?Expires\=10789481085\&OSSAccessKeyId\=UuJeBkxDXCkGK4ZF\&Signature\=6Bs8EersrW%2BL3d0rjOuGkNWH0Wc%3D -O bzip2-1.0.6.tar.gz 
+	cp /vagrant/bzip2-1.0.6.tar.gz .
 	tar xvzf bzip2-$(BZIP2_VER).tar.gz
 	cd bzip2-$(BZIP2_VER) && $(MAKE) CFLAGS='-fPIC -O2 -g -D_FILE_OFFSET_BITS=64 ${EXTRA_CFLAGS}' AR='ar ${EXTRA_ARFLAGS}'
 	cp bzip2-$(BZIP2_VER)/libbz2.a .
@@ -1826,7 +1822,7 @@ rocksdbjavastatic: $(java_static_all_libobjects)
 	cd java/target;jar -uf $(ROCKSDB_JAR) META-INF/LICENSE
 
 rocksdbjavastaticrelease: rocksdbjavastatic
-	cd java/crossbuild && vagrant destroy -f && vagrant up linux32 && vagrant halt linux32 && vagrant up linux64 && vagrant halt linux64
+	cd java/crossbuild && vagrant up linux32 && vagrant halt linux32 && vagrant up linux64 && vagrant halt linux64
 	cd java;jar -cf target/$(ROCKSDB_JAR_ALL) HISTORY*.md
 	jar -uf java/target/$(ROCKSDB_JAR_ALL) HISTORY*.md
 	cd java/target;jar -uf $(ROCKSDB_JAR_ALL) librocksdbjni-*.so librocksdbjni-*.jnilib librocksdbjni-win64.dll
@@ -1843,19 +1839,19 @@ frocksdbjavastaticrelease: rocksdbjavastaticrelease
 	$(eval JAR_DOCS=$(JAR_PREF)-javadoc.jar)
 	$(eval JAR_SOURCES=$(JAR_PREF)-sources.jar)
 	$(eval OSX_JAR=$(JAR_PREF)-osx.jar)
-	$(eval WIN_JAR=$(JAR_PREF)-win64.jar)
+	#$(eval WIN_JAR=$(JAR_PREF)-win64.jar)
 	$(eval LINUX32_JAR=$(JAR_PREF)-linux32.jar)
 	$(eval LINUX64_JAR=$(JAR_PREF)-linux64.jar)
 
 	# update windows jar
-	cd java/target;cp rocksdbjni_classes.jar $(WIN_JAR)
-	cd java;jar -uf target/$(WIN_JAR) HISTORY*.md
-	jar -uf java/target/$(WIN_JAR) HISTORY*.md
-	cd java/target;jar -uf $(WIN_JAR) librocksdbjni-win64.dll
-	cd java/target;jar -uf $(WIN_JAR) META-INF/LICENSE
+	#cd java/target;cp rocksdbjni_classes.jar $(WIN_JAR)
+	#cd java;jar -uf target/$(WIN_JAR) HISTORY*.md
+	#jar -uf java/target/$(WIN_JAR) HISTORY*.md
+	#cd java/target;jar -uf $(WIN_JAR) librocksdbjni-win64.dll
+	#cd java/target;jar -uf $(WIN_JAR) META-INF/LICENSE
 
 	# update linux 64 jar with ppc64 lib
-	cd java/target;jar -uf $(LINUX64_JAR) librocksdbjni-linux-ppc64le.so
+	#cd java/target;jar -uf $(LINUX64_JAR) librocksdbjni-linux-ppc64le.so
 
 	cd java/target;jar -uf $(JAR_DOCS) META-INF/LICENSE
 	cd java/target;jar -uf $(JAR_SOURCES) META-INF/LICENSE
@@ -1868,7 +1864,7 @@ frocksdbjavastaticrelease: rocksdbjavastaticrelease
 	$(eval FJAR_DOCS=$(FJAR_PREF)-javadoc.jar)
 	$(eval FJAR_SOURCES=$(FJAR_PREF)-sources.jar)
 	$(eval OSX_FJAR=$(FJAR_PREF)-osx.jar)
-	$(eval WIN_FJAR=$(FJAR_PREF)-win64.jar)
+	#$(eval WIN_FJAR=$(FJAR_PREF)-win64.jar)
 	$(eval LINUX32_FJAR=$(FJAR_PREF)-linux32.jar)
 	$(eval LINUX64_FJAR=$(FJAR_PREF)-linux64.jar)
 
@@ -1876,7 +1872,7 @@ frocksdbjavastaticrelease: rocksdbjavastaticrelease
 	cd java/target;cp $(JAR_DOCS) frocksdb-release/$(FJAR_DOCS)
 	cd java/target;cp $(JAR_SOURCES) frocksdb-release/$(FJAR_SOURCES)
 	cd java/target;cp $(OSX_JAR) frocksdb-release/$(OSX_FJAR)
-	cd java/target;cp $(WIN_JAR) frocksdb-release/$(WIN_FJAR)
+	#cd java/target;cp $(WIN_JAR) frocksdb-release/$(WIN_FJAR)
 	cd java/target;cp $(LINUX32_JAR) frocksdb-release/$(LINUX32_FJAR)
 	cd java/target;cp $(LINUX64_JAR) frocksdb-release/$(LINUX64_FJAR)
 	cd java;cp rocksjni.pom target/frocksdb-release/$(FJAR_PREF).pom
