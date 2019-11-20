@@ -1,5 +1,8 @@
 # FRocksdb Change Log
 
+# 5.17.2-artisans-2.0 (11/18/2019)
+* Enable write buffer manager via java interface
+
 # 5.17.2-artisans (07/02/2019)
 * [Flink TTL] compaction filter for background cleanup of state with time-to-live
 * [Flink ListState] Separator-free merge operator

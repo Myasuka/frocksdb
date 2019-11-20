@@ -17,11 +17,14 @@ Optionally:
     choco install intellijidea-community vscode
 
 Open git bash and run commands:
+Open developer and run commands:
 
     git clone git@github.com:dataArtisans/frocksdb.git
+    git clone git@github.com:Myasuka/frocksdb.git
     cd frocksdb
     git checkout FRocksDB-5.17.2 # release branch
     java/crossbuild/build-win.bat
+    java\crossbuild\build-win.bat
 
 The result native library is `build\java\Release\rocksdbjni-shared.dll`.
 The result windows jar is `build\java\rocksdbjni_classes.jar`.
@@ -37,7 +40,7 @@ Setup ppc64le docker machine ([source](https://developer.ibm.com/linuxonpower/20
 
     wget http://ftp.unicamp.br/pub/ppc64el/boot2docker/install.sh && chmod +x ./install.sh && ./install.sh -s
     docker-machine create -d qemu \
-        --qemu-boot2docker-url=/home/ubuntu/.docker/machine/boot2docker.iso \
+        --qemu-boot2docker-url=/root/.docker/machine/boot2docker.iso \
         --qemu-memory 8192 \
         --qemu-cache-mode none \
         --qemu-arch ppc64le \
@@ -47,16 +50,19 @@ Regenerate certs as suggested if it did not work at once.
 
 Prepare docker machine to run rocksdbjni docker image for ppc64le build:
 
+    apt install git
     eval $(docker-machine env vm-ppc64le)
     git clone git@github.com:dataArtisans/frocksdb.git
+    git clone https://github.com/Myasuka/frocksdb.git
     cd frocksdb
     git checkout FRocksDB-5.17.2 # release branch
     docker-machine ssh vm-ppc64le mkdir -p `pwd`
+    # scp content to docker macine !
     docker-machine scp -r . vm-ppc64le:`pwd`
 
 Build frocksdb:
 
-    make rocksdbjavastaticdockerppc64le
+    DEBUG_LEVEL=0 make rocksdbjavastaticdockerppc64le
     docker-machine scp vm-ppc64le:`pwd`/java/target/librocksdbjni-linux-ppc64le.so java/target/.
 
 The result native library is in `java/target/librocksdbjni-linux-ppc64le.so`.
