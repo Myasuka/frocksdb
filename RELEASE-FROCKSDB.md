@@ -16,14 +16,11 @@ Optionally:
 
     choco install intellijidea-community vscode
 
-Open git bash and run commands:
-Open developer and run commands:
+Open developer command prompt for vs 2017 and run commands:
 
     git clone git@github.com:dataArtisans/frocksdb.git
-    git clone git@github.com:Myasuka/frocksdb.git
     cd frocksdb
     git checkout FRocksDB-5.17.2 # release branch
-    java/crossbuild/build-win.bat
     java\crossbuild\build-win.bat
 
 The result native library is `build\java\Release\rocksdbjni-shared.dll`.
@@ -39,9 +36,9 @@ Install git if not installed. If docker is installed, it might need to be remove
 Setup ppc64le docker machine ([source](https://developer.ibm.com/linuxonpower/2017/06/08/build-test-ppc64le-docker-images-intel/)):
 
     wget http://ftp.unicamp.br/pub/ppc64el/boot2docker/install.sh && chmod +x ./install.sh && ./install.sh -s
-    docker-machine create -d qemu \
+    docker-machine -D create -d qemu \
         --qemu-boot2docker-url=/root/.docker/machine/boot2docker.iso \
-        --qemu-memory 8192 \
+        --qemu-memory 24576 \
         --qemu-cache-mode none \
         --qemu-arch ppc64le \
         vm-ppc64le
