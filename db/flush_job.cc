@@ -16,6 +16,7 @@
 #include <inttypes.h>
 
 #include <algorithm>
+#include <iostream>
 #include <vector>
 
 #include "db/builder.h"
@@ -229,6 +230,7 @@ Status FlushJob::Run(LogsWithPrepTracker* prep_tracker,
   } else {
     TEST_SYNC_POINT("FlushJob::InstallResults");
     // Replace immutable memtable with the generated Table
+    std::cout << cfd_->GetWriteBufferManager() << " column family " << cfd_ << " install memtable flush result " << std::endl;
     s = cfd_->imm()->InstallMemtableFlushResults(
         cfd_, mutable_cf_options_, mems_, prep_tracker, versions_, db_mutex_,
         meta_.fd.GetNumber(), &job_context_->memtables_to_free, db_directory_,

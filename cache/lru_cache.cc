@@ -17,6 +17,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string>
+#include <iostream>
 
 #include "util/mutexlock.h"
 
@@ -377,6 +378,10 @@ Status LRUCacheShard::Insert(const Slice& key, uint32_t hash, void* value,
       } else {
         delete[] reinterpret_cast<char*>(e);
         *handle = nullptr;
+        std::cout << "Insert failed due to LRU cache being full, usage: " << usage_
+        << ", lru_usage: " << lru_usage_
+        << ", charge: " << charge
+        << ", capacity: " << capacity_ << std::endl;
         s = Status::Incomplete("Insert failed due to LRU cache being full.");
       }
     } else {

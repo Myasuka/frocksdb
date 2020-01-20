@@ -741,6 +741,9 @@ WriteStallCondition ColumnFamilyData::RecalculateWriteStallConditions(
           "(waiting for flush), max_write_buffer_number is set to %d",
           name_.c_str(), imm()->NumNotFlushed(),
           mutable_cf_options.max_write_buffer_number);
+      std::cout << write_buffer_manager_ << " " << name_.c_str() << " Stopping writes because we have immutable memtables: "
+        << imm()->NumNotFlushed() << "(waiting for flush), max_write_buffer_number is set to "
+        << mutable_cf_options.max_write_buffer_number << std::endl;
     } else if (write_stall_condition == WriteStallCondition::kStopped &&
                write_stall_cause == WriteStallCause::kL0FileCountLimit) {
       write_controller_token_ = write_controller->GetStopToken();
@@ -752,6 +755,7 @@ WriteStallCondition ColumnFamilyData::RecalculateWriteStallConditions(
       ROCKS_LOG_WARN(ioptions_.info_log,
                      "[%s] Stopping writes because we have %d level-0 files",
                      name_.c_str(), vstorage->l0_delay_trigger_count());
+      std::cout << write_buffer_manager_ << " " << name_.c_str() << " Stopping writes because we have level-0 files: " <<  vstorage->l0_delay_trigger_count() << std::endl;
     } else if (write_stall_condition == WriteStallCondition::kStopped &&
                write_stall_cause == WriteStallCause::kPendingCompactionBytes) {
       write_controller_token_ = write_controller->GetStopToken();
@@ -762,6 +766,7 @@ WriteStallCondition ColumnFamilyData::RecalculateWriteStallConditions(
           "[%s] Stopping writes because of estimated pending compaction "
           "bytes %" PRIu64,
           name_.c_str(), compaction_needed_bytes);
+      std::cout << write_buffer_manager_ << " " << name_.c_str() << " Stopping writes because of estimated pending compaction bytes: " << compaction_needed_bytes << std::endl;
     } else if (write_stall_condition == WriteStallCondition::kDelayed &&
                write_stall_cause == WriteStallCause::kMemtableLimit) {
       write_controller_token_ =
@@ -777,6 +782,10 @@ WriteStallCondition ColumnFamilyData::RecalculateWriteStallConditions(
           name_.c_str(), imm()->NumNotFlushed(),
           mutable_cf_options.max_write_buffer_number,
           write_controller->delayed_write_rate());
+      std::cout << write_buffer_manager_ << name_.c_str() << " Stalling writes because we have immutable memtables: "
+                << imm()->NumNotFlushed() << "(waiting for flush), max_write_buffer_number is set to "
+                << mutable_cf_options.max_write_buffer_number << " and rate: "
+                << write_controller->delayed_write_rate() << std::endl;
     } else if (write_stall_condition == WriteStallCondition::kDelayed &&
                write_stall_cause == WriteStallCause::kL0FileCountLimit) {
       // L0 is the last two files from stopping.
@@ -797,6 +806,9 @@ WriteStallCondition ColumnFamilyData::RecalculateWriteStallConditions(
                      "rate %" PRIu64,
                      name_.c_str(), vstorage->l0_delay_trigger_count(),
                      write_controller->delayed_write_rate());
+      std::cout << write_buffer_manager_ << name_.c_str() << " Stalling writes because we have level-0 files: "
+                << vstorage->l0_delay_trigger_count() << " and rate: "
+                << write_controller->delayed_write_rate() << std::endl;
     } else if (write_stall_condition == WriteStallCondition::kDelayed &&
                write_stall_cause == WriteStallCause::kPendingCompactionBytes) {
       // If the distance to hard limit is less than 1/4 of the gap between soft
@@ -822,6 +834,9 @@ WriteStallCondition ColumnFamilyData::RecalculateWriteStallConditions(
           "bytes %" PRIu64 " rate %" PRIu64,
           name_.c_str(), vstorage->estimated_compaction_needed_bytes(),
           write_controller->delayed_write_rate());
+      std::cout << write_buffer_manager_ << name_.c_str() << " Stalling writes because of estimated pending compaction: "
+                << vstorage->estimated_compaction_needed_bytes() << " and rate: "
+                << write_controller->delayed_write_rate() << std::endl;
     } else {
       assert(write_stall_condition == WriteStallCondition::kNormal);
       if (vstorage->l0_delay_trigger_count() >=

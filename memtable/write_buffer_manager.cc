@@ -9,6 +9,8 @@
 
 #include "rocksdb/write_buffer_manager.h"
 #include <mutex>
+#include <iostream>
+
 #include "util/coding.h"
 
 namespace rocksdb {
@@ -82,15 +84,26 @@ void WriteBufferManager::ReserveMemWithCache(size_t mem) {
   // Use a mutex to protect various data structures. Can be optimzied to a
   // lock-free solution if it ends up with a performance bottleneck.
   std::lock_guard<std::mutex> lock(cache_rep_->cache_mutex_);
-
   size_t new_mem_used = memory_used_.load(std::memory_order_relaxed) + mem;
+  std::cout << this << " reserve memory: " << mem
+        << ", current memory usage: " << this->memory_usage()
+        << ", current memory active: " << this->memory_active_
+        << ", current memory limit: " << this->mutable_limit_
+        << ", new_mem_used: " << new_mem_used
+        << ", cache_allocated_size_: " << cache_rep_->cache_allocated_size_
+        << std::endl;
   memory_used_.store(new_mem_used, std::memory_order_relaxed);
   while (new_mem_used > cache_rep_->cache_allocated_size_) {
     // Expand size by at least 1MB.
     // Add a dummy record to the cache
     Cache::Handle* handle;
-    cache_rep_->cache_->Insert(cache_rep_->GetNextCacheKey(), nullptr,
+    Status s = cache_rep_->cache_->Insert(cache_rep_->GetNextCacheKey(), nullptr,
                                kSizeDummyEntry, nullptr, &handle);
+    if (s.IsIncomplete()) {
+        std::cout << "incomplete status with mem: " << mem
+        << ", kSizeDummyEntry: " << kSizeDummyEntry
+        << std::endl;
+    }
     cache_rep_->dummy_handles_.push_back(handle);
     cache_rep_->cache_allocated_size_ += kSizeDummyEntry;
   }
@@ -122,6 +135,10 @@ void WriteBufferManager::FreeMemWithCache(size_t mem) {
     cache_rep_->cache_->Release(cache_rep_->dummy_handles_.back(), true);
     cache_rep_->dummy_handles_.pop_back();
     cache_rep_->cache_allocated_size_ -= kSizeDummyEntry;
+    std::cout << this << " free memory " << mem << " by 1MB with new mem used: " << new_mem_used <<  ", cache_allocated_size: " << cache_rep_->cache_allocated_size_ << std::endl;
+  } else {
+    std::cout << this << " free no memory " << mem << " by 1MB with new mem used: " << new_mem_used << ", cache_allocated_size: "
+              << cache_rep_->cache_allocated_size_ << std::endl;
   }
 #else
   (void)mem;

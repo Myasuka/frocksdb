@@ -12,6 +12,7 @@
 #define __STDC_FORMAT_MACROS
 #endif
 #include <inttypes.h>
+#include <iostream>
 
 #include "db/builder.h"
 #include "db/error_handler.h"
@@ -1558,6 +1559,12 @@ Status DBImpl::BackgroundFlush(bool* made_progress, JobContext* job_context,
           cfd->GetName().c_str(), bg_job_limits.max_flushes,
           bg_job_limits.max_compactions, bg_flush_scheduled_,
           bg_compaction_scheduled_);
+      std::cout << write_buffer_manager_ << " calling FlushMemTableToOutputFile with column family: "
+        << cfd->GetName().c_str() << "，max flush slots "
+        << bg_job_limits.max_flushes << ", max compaction slots "
+        << bg_job_limits.max_compactions << ", flush slots scheduled "
+        << bg_flush_scheduled_ << ", compaction slots scheduled "
+        << bg_compaction_scheduled_ << std::endl;
     }
     status = FlushMemTablesToOutputFiles(bg_flush_args, made_progress,
                                          job_context, log_buffer);

@@ -423,6 +423,7 @@ Status MemTableList::InstallMemtableFlushResults(
                                        ": memtable #%" PRIu64 " done",
                            cfd->GetName().c_str(), m->file_number_, mem_id);
           assert(m->file_number_ > 0);
+          std::cout << "Release memtable: " << m->GetID() << std::endl;
           current_->Remove(m, to_delete);
           ++mem_id;
         }

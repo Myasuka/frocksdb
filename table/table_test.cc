@@ -3141,6 +3141,64 @@ TEST_F(PrefixTest, PrefixAndWholeKeyTest) {
   // rocksdb still works.
 }
 
+TEST_F(PrefixTest, MULTI_COLUMN_FAMILY_TEST) {
+    rocksdb::DBOptions dbOptions;
+    dbOptions.create_if_missing = true;
+    rocksdb::ColumnFamilyOptions columnFamilyOptions;
+    std::shared_ptr<Cache> cache = NewLRUCache(64 * 1024 * 1024, -1, false, 0.1);
+    std::shared_ptr<WriteBufferManager> wbm = std::make_shared<WriteBufferManager>(48*1024*1024, cache);
+    dbOptions.write_buffer_manager = wbm;
+    BlockBasedTableOptions blockBasedTableOptions;
+    blockBasedTableOptions.cache_index_and_filter_blocks = true;
+    blockBasedTableOptions.cache_index_and_filter_blocks_with_high_priority = true;
+    blockBasedTableOptions.pin_l0_filter_and_index_blocks_in_cache = true;
+    blockBasedTableOptions.block_cache = cache;
+    columnFamilyOptions.table_factory.reset(NewBlockBasedTableFactory(blockBasedTableOptions));
+
+    int size = 8;
+    std::vector<rocksdb::DB*> dbs;
+    for (int i = 0; i < size; ++i) {
+        rocksdb::DB* db;
+        std::vector<rocksdb::ColumnFamilyDescriptor> column_families;
+        column_families.emplace_back(ColumnFamilyDescriptor(("default"), columnFamilyOptions));
+        std::vector<ColumnFamilyHandle*> handles;
+        std::ostringstream sstream;
+        sstream << "/tmp/rocksdb-" << i;
+        std::string dbpath = sstream.str();
+        rocksdb::Status status =
+                rocksdb::DB::Open(dbOptions, dbpath, column_families, &handles, &db);
+        dbs.emplace_back(db);
+    }
+
+    std::cout << "init DB completed: " << dbs.size() << std::endl;
+
+    std::vector<ColumnFamilyHandle*> cfs;
+    for (int j = 0; j < size; ++j) {
+        ColumnFamilyHandle* cfh;
+        std::ostringstream sstream;
+        sstream << "state-" << j;
+        dbs[j]->CreateColumnFamily(columnFamilyOptions, sstream.str(), &cfh);
+        cfs.emplace_back(cfh);
+    }
+
+    std::cout << "init CFs completed: " << cfs.size() << std::endl;
+
+    WriteOptions writeOptions;
+    writeOptions.disableWAL = true;
+    ReadOptions readOptions;
+    for (int k = 0; k < size; ++k) {
+        std::cout << "Round: " << k << std::endl;
+        std::string big_value(1000, 'x');
+        for (int i = 0; i < 10; ++i) {
+            std::string key(i, 'a');
+            dbs[k]->Put(writeOptions, cfs[k], key, big_value);
+            std::string tmp;
+            dbs[k]->Get(readOptions, cfs[k], key, &tmp);
+            std::cout << "After Put, cache usage: " << cache->GetUsage() << " wbm usage: " << wbm->memory_usage() << std::endl;
+        }
+    }
+}
+
 /*
  * Disable TableWithGlobalSeqno since RocksDB does not store global_seqno in
  * the SST file any more. Instead, RocksDB deduces global_seqno from the

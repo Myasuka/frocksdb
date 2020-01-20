@@ -1101,6 +1101,7 @@ Status DBImpl::HandleWriteBufferFull(WriteContext* write_context) {
       "using %" PRIu64 " bytes out of a total of %" PRIu64 ".",
       write_buffer_manager_->memory_usage(),
       write_buffer_manager_->buffer_size());
+  std::cout << write_buffer_manager_ << " flushing column family with largest mem table size. Write buffer is " << write_buffer_manager_->memory_usage() << " bytes out of a total of " << write_buffer_manager_->buffer_size() << std::endl;
   // no need to refcount because drop is happening in write thread, so can't
   // happen while we're in the write thread
   ColumnFamilyData* cfd_picked = nullptr;
@@ -1139,6 +1140,11 @@ Status DBImpl::HandleWriteBufferFull(WriteContext* write_context) {
   }
   if (status.ok()) {
     SchedulePendingFlush(flush_req, FlushReason::kWriteBufferFull);
+    std::cout << write_buffer_manager_ << " pending flush mem table: " ;
+    for (auto flush : flush_req) {
+      std::cout << flush.first->GetName() << ", ";
+    }
+    std::cout << std::endl;
     MaybeScheduleFlushOrCompaction();
   }
   return status;
@@ -1471,6 +1477,7 @@ Status DBImpl::SwitchMemtable(ColumnFamilyData* cfd, WriteContext* context) {
   }
 
   cfd->mem()->SetNextLogNumber(logfile_number_);
+  std::cout << write_buffer_manager_ << " column family " << cfd << " add CF " << cfd->GetName() << " with mem-id: " << cfd->mem()->GetID() << " as immutable." << std::endl;
   cfd->imm()->Add(cfd->mem(), &context->memtables_to_free_);
   new_mem->Ref();
   cfd->SetMemtable(new_mem);

@@ -14,6 +14,7 @@
 
 #include <atomic>
 #include <cstddef>
+#include <iostream>
 #include "rocksdb/cache.h"
 
 namespace rocksdb {
@@ -45,6 +46,7 @@ class WriteBufferManager {
   bool ShouldFlush() const {
     if (enabled()) {
       if (mutable_memtable_memory_usage() > mutable_limit_) {
+        std::cout << this << " should flush, mutable_memtable_memory_usage: " << mutable_memtable_memory_usage() <<  ", mutable_limit_: " << mutable_limit_ << std::endl;
         return true;
       }
       if (memory_usage() >= buffer_size_ &&
@@ -52,6 +54,7 @@ class WriteBufferManager {
         // If the memory exceeds the buffer size, we trigger more aggressive
         // flush. But if already more than half memory is being flushed,
         // triggering more flush may not help. We will hold it instead.
+        std::cout << this << " should flush, memory_usage: " << memory_usage() << ", mutable_memtable_memory_usage: " << mutable_memtable_memory_usage() <<  ", buffer_size: " << buffer_size_ << std::endl;
         return true;
       }
     }

@@ -219,6 +219,11 @@ class ColumnFamilyData {
   const MutableCFOptions* GetCurrentMutableCFOptions() const {
     return &(super_version_->mutable_cf_options);
   }
+
+  const WriteBufferManager* GetWriteBufferManager() const {
+      return write_buffer_manager_;
+  }
+
   // REQUIRES: DB mutex held
   // This returns the latest MutableCFOptions, which may be not in effect yet.
   const MutableCFOptions* GetLatestMutableCFOptions() const {
