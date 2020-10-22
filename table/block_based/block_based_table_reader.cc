@@ -233,8 +233,6 @@ void BlockBasedTable::UpdateCacheHitMetrics(BlockType block_type,
   Statistics* const statistics = rep_->ioptions.statistics;
 
   PERF_COUNTER_ADD(block_cache_hit_count, 1);
-  PERF_COUNTER_BY_LEVEL_ADD(block_cache_hit_count, 1,
-                            static_cast<uint32_t>(rep_->level));
 
   if (get_context) {
     ++get_context->get_context_stats_.num_cache_hit;
@@ -289,10 +287,6 @@ void BlockBasedTable::UpdateCacheHitMetrics(BlockType block_type,
 void BlockBasedTable::UpdateCacheMissMetrics(BlockType block_type,
                                              GetContext* get_context) const {
   Statistics* const statistics = rep_->ioptions.statistics;
-
-  // TODO: introduce aggregate (not per-level) block cache miss count
-  PERF_COUNTER_BY_LEVEL_ADD(block_cache_miss_count, 1,
-                            static_cast<uint32_t>(rep_->level));
 
   if (get_context) {
     ++get_context->get_context_stats_.num_cache_miss;
@@ -2158,7 +2152,6 @@ bool BlockBasedTable::FullFilterKeyMayMatch(
   }
   if (may_match) {
     RecordTick(rep_->ioptions.statistics, BLOOM_FILTER_FULL_POSITIVE);
-    PERF_COUNTER_BY_LEVEL_ADD(bloom_filter_full_positive, 1, rep_->level);
   }
   return may_match;
 }
@@ -2180,14 +2173,10 @@ void BlockBasedTable::FullFilterKeysMayMatch(
     if (after_keys) {
       RecordTick(rep_->ioptions.statistics, BLOOM_FILTER_FULL_POSITIVE,
                  after_keys);
-      PERF_COUNTER_BY_LEVEL_ADD(bloom_filter_full_positive, after_keys,
-                                rep_->level);
     }
     uint64_t filtered_keys = before_keys - after_keys;
     if (filtered_keys) {
       RecordTick(rep_->ioptions.statistics, BLOOM_FILTER_USEFUL, filtered_keys);
-      PERF_COUNTER_BY_LEVEL_ADD(bloom_filter_useful, filtered_keys,
-                                rep_->level);
     }
   } else if (!read_options.total_order_seek && prefix_extractor &&
              rep_->table_properties->prefix_extractor_name.compare(
@@ -2234,7 +2223,6 @@ Status BlockBasedTable::Get(const ReadOptions& read_options, const Slice& key,
                             get_context, &lookup_context);
   if (!may_match) {
     RecordTick(rep_->ioptions.statistics, BLOOM_FILTER_USEFUL);
-    PERF_COUNTER_BY_LEVEL_ADD(bloom_filter_useful, 1, rep_->level);
   } else {
     IndexBlockIter iiter_on_stack;
     // if prefix_extractor found in block differs from options, disable
@@ -2271,7 +2259,6 @@ Status BlockBasedTable::Get(const ReadOptions& read_options, const Slice& key,
         // TODO: think about interaction with Merge. If a user key cannot
         // cross one data block, we should be fine.
         RecordTick(rep_->ioptions.statistics, BLOOM_FILTER_USEFUL);
-        PERF_COUNTER_BY_LEVEL_ADD(bloom_filter_useful, 1, rep_->level);
         break;
       }
 
@@ -2373,8 +2360,6 @@ Status BlockBasedTable::Get(const ReadOptions& read_options, const Slice& key,
     }
     if (matched && filter != nullptr && !filter->IsBlockBased()) {
       RecordTick(rep_->ioptions.statistics, BLOOM_FILTER_FULL_TRUE_POSITIVE);
-      PERF_COUNTER_BY_LEVEL_ADD(bloom_filter_full_true_positive, 1,
-                                rep_->level);
     }
     if (s.ok() && !iiter->status().IsNotFound()) {
       s = iiter->status();
@@ -2701,8 +2686,6 @@ void BlockBasedTable::MultiGet(const ReadOptions& read_options,
 
       if (matched && filter != nullptr && !filter->IsBlockBased()) {
         RecordTick(rep_->ioptions.statistics, BLOOM_FILTER_FULL_TRUE_POSITIVE);
-        PERF_COUNTER_BY_LEVEL_ADD(bloom_filter_full_true_positive, 1,
-                                  rep_->level);
       }
       if (s.ok() && !iiter->status().IsNotFound()) {
         s = iiter->status();
