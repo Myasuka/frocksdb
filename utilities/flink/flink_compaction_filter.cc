@@ -4,10 +4,10 @@
 //  (found in the LICENSE.Apache file in the root directory).
 
 #include <algorithm>
-#include <iostream>
+#include <inttypes.h>
 #include "utilities/flink/flink_compaction_filter.h"
 
-namespace rocksdb {
+namespace ROCKSDB_NAMESPACE {
 namespace flink {
 
 int64_t DeserializeTimestamp(const char *src, std::size_t offset) {
@@ -27,7 +27,7 @@ CompactionFilter::Decision Decide(
         const std::shared_ptr<Logger> &logger) {
   int64_t timestamp = DeserializeTimestamp(ts_bytes, timestamp_offset);
   const int64_t ttlWithoutOverflow = timestamp > 0 ? std::min(JAVA_MAX_LONG - timestamp, ttl) : ttl;
-  Debug(logger.get(), "Last access timestamp: %lld ms, ttlWithoutOverflow: %lld ms, Current timestamp: %lld ms",
+  Debug(logger.get(), "Last access timestamp: %" PRId64 " ms, ttlWithoutOverflow: %" PRId64 " ms, Current timestamp: %" PRId64 " ms",
         timestamp, ttlWithoutOverflow, current_timestamp);
   return timestamp + ttlWithoutOverflow <= current_timestamp ?
          CompactionFilter::Decision::kRemove : CompactionFilter::Decision::kKeep;
@@ -110,7 +110,7 @@ CompactionFilter::Decision FlinkCompactionFilter::FilterV2(
 
   Debug(logger_.get(),
     "Call FlinkCompactionFilter::FilterV2 - Key: %s, Data: %s, Value type: %d, "
-    "State type: %d, TTL: %lld ms, timestamp_offset: %lu",
+    "State type: %d, TTL: %" PRId64 " ms, timestamp_offset: %lu",
     key.ToString().c_str(), existing_value.ToString(true).c_str(), value_type,
     config_cached_->state_type_, config_cached_->ttl_, config_cached_->timestamp_offset_);
 
@@ -130,7 +130,7 @@ CompactionFilter::Decision FlinkCompactionFilter::FilterV2(
             ListDecide(existing_value, new_value) :
             Decide(data, config_cached_->ttl_, config_cached_->timestamp_offset_, current_timestamp_, logger_);
   }
-  Debug(logger_.get(), "Decision: %d", decision);
+  Debug(logger_.get(), "Decision: %d", static_cast<int>(decision));
   return decision;
 }
 
@@ -182,4 +182,4 @@ void FlinkCompactionFilter::SetUnexpiredListValue(
   }
 }
 }  // namespace flink
-}  // namespace rocksdb
+}  // namespace ROCKSDB_NAMESPACE
