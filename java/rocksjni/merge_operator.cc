@@ -89,7 +89,7 @@ void Java_org_rocksdb_UInt64AddOperator_disposeInternal(JNIEnv* /*env*/,
 jlong Java_org_rocksdb_StringAppendOperatorWithVariableDelimitor_newSharedStringAppendTESTOperator(
         JNIEnv* env, jclass /*jclazz*/, jbyteArray jdelim) {
   jboolean has_exception = JNI_FALSE;
-  std::string delim = rocksdb::JniUtil::byteString<std::string>(
+  std::string delim = ROCKSDB_NAMESPACE::JniUtil::byteString<std::string>(
           env, jdelim,
           [](const char* str, const size_t len) { return std::string(str, len); },
           &has_exception);
@@ -98,8 +98,8 @@ jlong Java_org_rocksdb_StringAppendOperatorWithVariableDelimitor_newSharedString
     return 0;
   }
 
-  auto* sptr_string_append_test_op = new std::shared_ptr<rocksdb::MergeOperator>(
-          rocksdb::MergeOperators::CreateStringAppendTESTOperator(delim));
+  auto* sptr_string_append_test_op = new std::shared_ptr<ROCKSDB_NAMESPACE::MergeOperator>(
+          ROCKSDB_NAMESPACE::MergeOperators::CreateStringAppendTESTOperator(delim));
   return reinterpret_cast<jlong>(sptr_string_append_test_op);
 }
 
@@ -112,6 +112,6 @@ void Java_org_rocksdb_StringAppendOperatorWithVariableDelimitor_disposeInternal(
                                                                                 jobject /*jobj*/,
                                                                                 jlong jhandle) {
   auto* sptr_string_append_test_op =
-          reinterpret_cast<std::shared_ptr<rocksdb::MergeOperator>*>(jhandle);
+          reinterpret_cast<std::shared_ptr<ROCKSDB_NAMESPACE::MergeOperator>*>(jhandle);
   delete sptr_string_append_test_op;  // delete std::shared_ptr
 }
