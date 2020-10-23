@@ -13,7 +13,7 @@
 #include <utility>
 #include <include/rocksdb/env.h>
 
-namespace rocksdb {
+namespace ROCKSDB_NAMESPACE {
 namespace flink {
 
 static const std::size_t BITS_PER_BYTE = static_cast<std::size_t>(8);
@@ -159,4 +159,4 @@ static const FlinkCompactionFilter::Config DISABLED_CONFIG = FlinkCompactionFilt
     FlinkCompactionFilter::StateType::Disabled, 0, std::numeric_limits<int64_t>::max(), std::numeric_limits<int64_t>::max(), nullptr};
 
 }  // namespace flink
-}  // namespace rocksdb
+}  // namespace ROCKSDB_NAMESPACE

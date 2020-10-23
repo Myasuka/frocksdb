@@ -12,9 +12,9 @@
 #include "loggerjnicallback.h"
 #include "portal.h"
 
-using namespace rocksdb::flink;
+using namespace ROCKSDB_NAMESPACE::flink;
 
-class JniCallbackBase : public rocksdb::JniCallback {
+class JniCallbackBase : public ROCKSDB_NAMESPACE::JniCallback {
 public:
     JniCallbackBase(JNIEnv *env, jobject jcallback_obj) : JniCallback(env, jcallback_obj) {}
 protected:
@@ -29,10 +29,10 @@ protected:
 // This list element filter operates on list state for which byte length of elements is unknown (variable),
 // the list element serializer has to be used in this case to compute the offset of the next element.
 // The filter wraps java object implenented in Flink. The java object holds element serializer and performs filtering.
-class JavaListElementFilter : public rocksdb::flink::FlinkCompactionFilter::ListElementFilter, JniCallbackBase {
+class JavaListElementFilter : public ROCKSDB_NAMESPACE::flink::FlinkCompactionFilter::ListElementFilter, JniCallbackBase {
 public:
   JavaListElementFilter(JNIEnv* env, jobject jlist_filter) : JniCallbackBase(env, jlist_filter) {
-      jclass jclazz = rocksdb::JavaClass::getJClass(env, "org/rocksdb/FlinkCompactionFilter$ListElementFilter");
+      jclass jclazz = ROCKSDB_NAMESPACE::JavaClass::getJClass(env, "org/rocksdb/FlinkCompactionFilter$ListElementFilter");
       if(jclazz == nullptr) {
         // exception occurred accessing class
         return;
@@ -42,10 +42,10 @@ public:
 
   }
 
-  std::size_t NextUnexpiredOffset(const rocksdb::Slice& list, int64_t ttl, int64_t current_timestamp) const override {
+  std::size_t NextUnexpiredOffset(const ROCKSDB_NAMESPACE::Slice& list, int64_t ttl, int64_t current_timestamp) const override {
     jboolean attached_thread = JNI_FALSE;
     JNIEnv* env = getJniEnv(&attached_thread);
-    jbyteArray jlist = rocksdb::JniUtil::copyBytes(env, list);
+    jbyteArray jlist = ROCKSDB_NAMESPACE::JniUtil::copyBytes(env, list);
     CheckAndRethrowException(env);
     if (jlist == nullptr) {
       return static_cast<std::size_t>(-1);
@@ -63,10 +63,10 @@ private:
   jmethodID m_jnext_unexpired_offset_methodid;
 };
 
-class JavaListElemenFilterFactory : public rocksdb::flink::FlinkCompactionFilter::ListElementFilterFactory, JniCallbackBase {
+class JavaListElemenFilterFactory : public ROCKSDB_NAMESPACE::flink::FlinkCompactionFilter::ListElementFilterFactory, JniCallbackBase {
 public:
     JavaListElemenFilterFactory(JNIEnv* env, jobject jlist_filter_factory) : JniCallbackBase(env, jlist_filter_factory) {
-        jclass jclazz = rocksdb::JavaClass::getJClass(env, "org/rocksdb/FlinkCompactionFilter$ListElementFilterFactory");
+        jclass jclazz = ROCKSDB_NAMESPACE::JavaClass::getJClass(env, "org/rocksdb/FlinkCompactionFilter$ListElementFilterFactory");
         if(jclazz == nullptr) {
             // exception occurred accessing class
             return;
@@ -76,7 +76,7 @@ public:
         assert(m_jcreate_filter_methodid != nullptr);
     }
 
-    FlinkCompactionFilter::ListElementFilter* CreateListElementFilter(std::shared_ptr<rocksdb::Logger> /*logger*/) const override {
+    FlinkCompactionFilter::ListElementFilter* CreateListElementFilter(std::shared_ptr<ROCKSDB_NAMESPACE::Logger> /*logger*/) const override {
         jboolean attached_thread = JNI_FALSE;
         JNIEnv* env = getJniEnv(&attached_thread);
         auto jlist_filter = env->CallObjectMethod(m_jcallback_obj, m_jcreate_filter_methodid);
@@ -90,10 +90,10 @@ private:
     jmethodID m_jcreate_filter_methodid;
 };
 
-class JavaTimeProvider : public rocksdb::flink::FlinkCompactionFilter::TimeProvider, JniCallbackBase {
+class JavaTimeProvider : public ROCKSDB_NAMESPACE::flink::FlinkCompactionFilter::TimeProvider, JniCallbackBase {
 public:
     JavaTimeProvider(JNIEnv* env, jobject jtime_provider) : JniCallbackBase(env, jtime_provider) {
-        jclass jclazz = rocksdb::JavaClass::getJClass(env, "org/rocksdb/FlinkCompactionFilter$TimeProvider");
+        jclass jclazz = ROCKSDB_NAMESPACE::JavaClass::getJClass(env, "org/rocksdb/FlinkCompactionFilter$TimeProvider");
         if(jclazz == nullptr) {
             // exception occurred accessing class
             return;
@@ -134,7 +134,7 @@ static FlinkCompactionFilter::ListElementFilterFactory* createListElementFilterF
  */
 jlong Java_org_rocksdb_FlinkCompactionFilter_createNewFlinkCompactionFilterConfigHolder(
         JNIEnv* /* env */, jclass /* jcls */) {
-    using namespace rocksdb::flink;
+    using namespace ROCKSDB_NAMESPACE::flink;
     return reinterpret_cast<jlong>(
             new std::shared_ptr<FlinkCompactionFilter::ConfigHolder>(new FlinkCompactionFilter::ConfigHolder()));
 }
@@ -146,7 +146,7 @@ jlong Java_org_rocksdb_FlinkCompactionFilter_createNewFlinkCompactionFilterConfi
  */
 void Java_org_rocksdb_FlinkCompactionFilter_disposeFlinkCompactionFilterConfigHolder(
         JNIEnv* /* env */, jclass /* jcls */, jlong handle) {
-    using namespace rocksdb::flink;
+    using namespace ROCKSDB_NAMESPACE::flink;
     auto* config_holder = reinterpret_cast<std::shared_ptr<FlinkCompactionFilter::ConfigHolder>*>(handle);
     delete config_holder;
 }
@@ -158,11 +158,11 @@ void Java_org_rocksdb_FlinkCompactionFilter_disposeFlinkCompactionFilterConfigHo
  */
 jlong Java_org_rocksdb_FlinkCompactionFilter_createNewFlinkCompactionFilter0(
         JNIEnv* env, jclass /* jcls */, jlong config_holder_handle, jobject jtime_provider, jlong logger_handle) {
-  using namespace rocksdb::flink;
+  using namespace ROCKSDB_NAMESPACE::flink;
   auto config_holder = *(reinterpret_cast<std::shared_ptr<FlinkCompactionFilter::ConfigHolder>*>(config_holder_handle));
   auto time_provider = new JavaTimeProvider(env, jtime_provider);
   auto logger = logger_handle == 0 ? nullptr :
-          *(reinterpret_cast<std::shared_ptr<rocksdb::LoggerJniCallback>*>(logger_handle));
+          *(reinterpret_cast<std::shared_ptr<ROCKSDB_NAMESPACE::LoggerJniCallback>*>(logger_handle));
   return reinterpret_cast<jlong>(new FlinkCompactionFilter(
           config_holder, std::unique_ptr<FlinkCompactionFilter::TimeProvider>(time_provider), logger));
 }
