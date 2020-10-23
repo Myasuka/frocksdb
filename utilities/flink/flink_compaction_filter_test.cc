@@ -7,7 +7,7 @@
 #include "test_util/testharness.h"
 #include "utilities/flink/flink_compaction_filter.h"
 
-namespace rocksdb {
+namespace ROCKSDB_NAMESPACE {
 namespace flink {
 
 #define DISABLED FlinkCompactionFilter::StateType::Disabled
@@ -210,7 +210,7 @@ TEST(FlinkListStateTtlTest, WrongFilterValueType) { // NOLINT
 }
 
 } // namespace flink
-} // namespace rocksdb
+} // namespace ROCKSDB_NAMESPACE
 
 int main(int argc, char** argv) {
   ::testing::InitGoogleTest(&argc, argv);
