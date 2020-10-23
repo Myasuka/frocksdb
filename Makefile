@@ -1407,6 +1407,9 @@ cassandra_row_merge_test: utilities/cassandra/cassandra_row_merge_test.o utiliti
 cassandra_serialize_test: utilities/cassandra/cassandra_serialize_test.o $(LIBOBJECTS) $(TESTHARNESS)
 	$(AM_LINK)
 
+hash_table_test: utilities/persistent_cache/hash_table_test.o $(LIBOBJECTS) $(TESTHARNESS)
+	$(AM_LINK)
+
 flink_compaction_filter_test: utilities/flink/flink_compaction_filter_test.o $(LIBOBJECTS) $(TESTHARNESS)
 	$(AM_LINK)
 
