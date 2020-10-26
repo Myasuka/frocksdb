@@ -30,6 +30,7 @@ NATIVE_JAVA_CLASSES = \
 	org.rocksdb.DirectSlice\
 	org.rocksdb.Env\
 	org.rocksdb.EnvOptions\
+	org.rocksdb.FlinkCompactionFilter\
 	org.rocksdb.FlushOptions\
 	org.rocksdb.Filter\
 	org.rocksdb.IngestExternalFileOptions\
@@ -75,6 +76,7 @@ NATIVE_JAVA_CLASSES = \
 	org.rocksdb.VectorMemTableConfig\
 	org.rocksdb.Snapshot\
 	org.rocksdb.StringAppendOperator\
+    org.rocksdb.StringAppendOperatorWithVariableDelimitor\
 	org.rocksdb.UInt64AddOperator\
 	org.rocksdb.WriteBatch\
 	org.rocksdb.WriteBatch.Handler\
