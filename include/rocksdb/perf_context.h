@@ -17,43 +17,11 @@ namespace rocksdb {
 // and transparently.
 // Use SetPerfLevel(PerfLevel::kEnableTime) to enable time stats.
 
-struct PerfContextByLevel {
-  // # of times bloom filter has avoided file reads, i.e., negatives.
-  uint64_t bloom_filter_useful = 0;
-  // # of times bloom FullFilter has not avoided the reads.
-  uint64_t bloom_filter_full_positive = 0;
-  // # of times bloom FullFilter has not avoided the reads and data actually
-  // exist.
-  uint64_t bloom_filter_full_true_positive = 0;
-
-  // total number of user key returned (only include keys that are found, does
-  // not include keys that are deleted or merged without a final put
-  uint64_t user_key_return_count;
-
-  // total nanos spent on reading data from SST files
-  uint64_t get_from_table_nanos;
-
-  uint64_t block_cache_hit_count = 0;   // total number of block cache hits
-  uint64_t block_cache_miss_count = 0;  // total number of block cache misses
-
-  void Reset(); // reset all performance counters to zero
-};
-
 struct PerfContext {
-  ~PerfContext();
 
   void Reset(); // reset all performance counters to zero
 
   std::string ToString(bool exclude_zero_counters = false) const;
-
-  // enable per level perf context and allocate storage for PerfContextByLevel
-  void EnablePerLevelPerfContext();
-
-  // temporarily disable per level perf contxt by setting the flag to false
-  void DisablePerLevelPerfContext();
-
-  // free the space for PerfContextByLevel, also disable per level perf context
-  void ClearPerLevelPerfContext();
 
   uint64_t user_key_comparison_count;  // total number of user key comparisons
   uint64_t block_cache_hit_count;      // total number of block cache hits
@@ -213,8 +181,6 @@ struct PerfContext {
   uint64_t iter_prev_cpu_nanos;
   uint64_t iter_seek_cpu_nanos;
 
-  std::map<uint32_t, PerfContextByLevel>* level_to_perf_context;
-  bool per_level_perf_context_enabled;
 };
 
 // Get Thread-local PerfContext object pointer

@@ -301,6 +301,7 @@
 ### Public API Change
 * `DBOptions::use_direct_reads` now affects reads issued by `BackupEngine` on the database's SSTs.
 * `NO_ITERATORS` is divided into two counters `NO_ITERATOR_CREATED` and `NO_ITERATOR_DELETE`. Both of them are only increasing now, just as other counters.
+* Introduced CacheAllocator, which lets the user specify custom allocator for memory in block cache.
 
 ### Bug Fixes
 * Fix corner case where a write group leader blocked due to write stall blocks other writers in queue with WriteOptions::no_slowdown set.

@@ -3130,7 +3130,6 @@ class Benchmark {
     }
 
     SetPerfLevel(static_cast<PerfLevel> (shared->perf_level));
-    perf_context.EnablePerLevelPerfContext();
     thread->stats.Start(thread->tid);
     (arg->bm->*(arg->method))(thread);
     thread->stats.Stop();
