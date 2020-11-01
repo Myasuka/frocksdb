@@ -4,7 +4,7 @@
 //  (found in the LICENSE.Apache file in the root directory).
 
 #include <random>
-#include "util/testharness.h"
+#include "test_util/testharness.h"
 #include "utilities/flink/flink_compaction_filter.h"
 
 namespace rocksdb {
@@ -93,7 +93,7 @@ void Init(FlinkCompactionFilter::StateType stype,
 
   filter = new FlinkCompactionFilter(config_holder, std::unique_ptr<FlinkCompactionFilter::TimeProvider>(time_provider), logger);
   auto config = new FlinkCompactionFilter::Config{state_type, timestamp_offset, ttl, QUERY_TIME_AFTER_NUM_ENTRIES,
-                                                  unique_ptr<FlinkCompactionFilter::ListElementFilterFactory>(fixed_len_filter_factory)};
+                                                  std::unique_ptr<FlinkCompactionFilter::ListElementFilterFactory>(fixed_len_filter_factory)};
   EXPECT_EQ(decide(), KKEEP); // test disabled config
   EXPECT_TRUE(config_holder->Configure(config));
   EXPECT_FALSE(config_holder->Configure(config));
