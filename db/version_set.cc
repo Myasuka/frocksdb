@@ -1831,8 +1831,6 @@ void Version::Get(const ReadOptions& read_options, const LookupKey& k,
         } else if (fp.GetHitFileLevel() >= 2) {
           RecordTick(db_statistics_, GET_HIT_L2_AND_UP);
         }
-        PERF_COUNTER_BY_LEVEL_ADD(user_key_return_count, 1,
-                                  fp.GetHitFileLevel());
         return;
       case GetContext::kDeleted:
         // Use empty error message for speed
@@ -1924,10 +1922,6 @@ void Version::MultiGet(const ReadOptions& read_options, MultiGetRange* range,
 
   while (f != nullptr) {
     MultiGetRange file_range = fp.CurrentFileRange();
-    bool timer_enabled =
-        GetPerfLevel() >= PerfLevel::kEnableTimeExceptForMutex &&
-        get_perf_context()->per_level_perf_context_enabled;
-    StopWatchNano timer(env_, timer_enabled /* auto_start */);
     Status s = table_cache_->MultiGet(
         read_options, *internal_comparator(), *f->file_metadata, &file_range,
         mutable_cf_options_.prefix_extractor.get(),
@@ -1935,11 +1929,6 @@ void Version::MultiGet(const ReadOptions& read_options, MultiGetRange* range,
         IsFilterSkipped(static_cast<int>(fp.GetHitFileLevel()),
                         fp.IsHitFileLastInLevel()),
         fp.GetCurrentLevel());
-    // TODO: examine the behavior for corrupted key
-    if (timer_enabled) {
-      PERF_COUNTER_BY_LEVEL_ADD(get_from_table_nanos, timer.ElapsedNanos(),
-                                fp.GetCurrentLevel());
-    }
     if (!s.ok()) {
       // TODO: Set status for individual keys appropriately
       for (auto iter = file_range.begin(); iter != file_range.end(); ++iter) {
@@ -1984,8 +1973,6 @@ void Version::MultiGet(const ReadOptions& read_options, MultiGetRange* range,
           } else if (fp.GetHitFileLevel() >= 2) {
             RecordTick(db_statistics_, GET_HIT_L2_AND_UP);
           }
-          PERF_COUNTER_BY_LEVEL_ADD(user_key_return_count, 1,
-                                    fp.GetHitFileLevel());
           file_range.MarkKeyDone(iter);
           continue;
         case GetContext::kDeleted:

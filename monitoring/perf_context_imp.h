@@ -31,7 +31,6 @@ extern __thread PerfContext perf_context;
                                                ticker_type)
 #define PERF_TIMER_MEASURE(metric)
 #define PERF_COUNTER_ADD(metric, value)
-#define PERF_COUNTER_BY_LEVEL_ADD(metric, value, level)
 
 #else
 

@@ -4,7 +4,7 @@
 //  (found in the LICENSE.Apache file in the root directory).
 
 #include <algorithm>
-#include <iostream>
+#include <cinttypes>
 #include "utilities/flink/flink_compaction_filter.h"
 
 namespace rocksdb {
@@ -27,7 +27,7 @@ CompactionFilter::Decision Decide(
         const std::shared_ptr<Logger> &logger) {
   int64_t timestamp = DeserializeTimestamp(ts_bytes, timestamp_offset);
   const int64_t ttlWithoutOverflow = timestamp > 0 ? std::min(JAVA_MAX_LONG - timestamp, ttl) : ttl;
-  Debug(logger.get(), "Last access timestamp: %ld ms, ttlWithoutOverflow: %ld ms, Current timestamp: %ld ms",
+  Debug(logger.get(), "Last access timestamp: %" PRId64 " ms, ttlWithoutOverflow: %" PRId64 " ms, Current timestamp: %" PRId64 " ms",
         timestamp, ttlWithoutOverflow, current_timestamp);
   return timestamp + ttlWithoutOverflow <= current_timestamp ?
          CompactionFilter::Decision::kRemove : CompactionFilter::Decision::kKeep;
@@ -110,7 +110,7 @@ CompactionFilter::Decision FlinkCompactionFilter::FilterV2(
 
   Debug(logger_.get(),
     "Call FlinkCompactionFilter::FilterV2 - Key: %s, Data: %s, Value type: %d, "
-    "State type: %d, TTL: %d ms, timestamp_offset: %d",
+    "State type: %d, TTL: %" PRId64 " ms, timestamp_offset: %zu",
     key.ToString().c_str(), existing_value.ToString(true).c_str(), value_type,
     config_cached_->state_type_, config_cached_->ttl_, config_cached_->timestamp_offset_);
 
@@ -159,11 +159,11 @@ std::size_t FlinkCompactionFilter::ListNextUnexpiredOffset(
         const Slice &existing_value, size_t offset, int64_t ttl) const {
   std::size_t new_offset = list_element_filter_->NextUnexpiredOffset(existing_value, ttl, current_timestamp_);
   if (new_offset >= JAVA_MAX_SIZE || new_offset < offset) {
-    Error(logger_.get(), "Wrong next offset in list filter: %d -> %d",
+    Error(logger_.get(), "Wrong next offset in list filter: %zu -> %zu",
           offset, new_offset);
     new_offset = JAVA_MAX_SIZE;
   } else {
-    Debug(logger_.get(), "Next unexpired offset: %d -> %d",
+    Debug(logger_.get(), "Next unexpired offset: %zu -> %zu",
           offset, new_offset);
   }
   return new_offset;
