@@ -839,7 +839,7 @@ Status BlockBasedTable::Open(const ImmutableCFOptions& ioptions,
   // raw pointer will be used to create HashIndexReader, whose reset may
   // access a dangling pointer.
   Rep* rep = new BlockBasedTable::Rep(ioptions, env_options, table_options,
-                                      internal_comparator, skip_filters, level,
+                                      internal_comparator, skip_filters,
                                       immortal_table);
   rep->file = std::move(file);
   rep->footer = footer;
@@ -2404,7 +2404,8 @@ bool BlockBasedTable::FullFilterKeyMayMatch(
   }
   if (may_match) {
     RecordTick(rep_->ioptions.statistics, BLOOM_FILTER_FULL_POSITIVE);
-    PERF_COUNTER_BY_LEVEL_ADD(bloom_filter_full_positive, 1, rep_->level);
+    // TODO(Zhongyi): use the correct level here
+    // PERF_COUNTER_BY_LEVEL_ADD(bloom_filter_full_positive, 1, /*level*/);
   }
   return may_match;
 }
@@ -2429,7 +2430,8 @@ Status BlockBasedTable::Get(const ReadOptions& read_options, const Slice& key,
   if (!FullFilterKeyMayMatch(read_options, filter, key, no_io,
                              prefix_extractor)) {
     RecordTick(rep_->ioptions.statistics, BLOOM_FILTER_USEFUL);
-    PERF_COUNTER_BY_LEVEL_ADD(bloom_filter_useful, 1, rep_->level);
+    // TODO(Zhongyi): use the correct level here
+    // PERF_COUNTER_BY_LEVEL_ADD(bloom_filter_useful, 1, /*level*/);
   } else {
     IndexBlockIter iiter_on_stack;
     // if prefix_extractor found in block differs from options, disable
@@ -2462,7 +2464,8 @@ Status BlockBasedTable::Get(const ReadOptions& read_options, const Slice& key,
         // TODO: think about interaction with Merge. If a user key cannot
         // cross one data block, we should be fine.
         RecordTick(rep_->ioptions.statistics, BLOOM_FILTER_USEFUL);
-        PERF_COUNTER_BY_LEVEL_ADD(bloom_filter_useful, 1, rep_->level);
+        // TODO(Zhongyi): use the correct level here
+        // PERF_COUNTER_BY_LEVEL_ADD(bloom_filter_useful, 1, /*level*/);
         break;
       } else {
         DataBlockIter biter;
@@ -2515,8 +2518,8 @@ Status BlockBasedTable::Get(const ReadOptions& read_options, const Slice& key,
     }
     if (matched && filter != nullptr && !filter->IsBlockBased()) {
       RecordTick(rep_->ioptions.statistics, BLOOM_FILTER_FULL_TRUE_POSITIVE);
-      PERF_COUNTER_BY_LEVEL_ADD(bloom_filter_full_true_positive, 1,
-                                rep_->level);
+      // TODO(Zhongyi): use the correct level here
+      // PERF_COUNTER_BY_LEVEL_ADD(bloom_filter_full_true_positive, 1, /*level*/);
     }
     if (s.ok()) {
       s = iiter->status();
