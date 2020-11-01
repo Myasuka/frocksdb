@@ -289,7 +289,7 @@
 ## 5.18.0 (11/30/2018)
 ### New Features
 * Introduced `JemallocNodumpAllocator` memory allocator. When being use, block cache will be excluded from core dump.
-* Introduced `PerfContextByLevel` as part of `PerfContext` which allows storing perf context at each level. Also replaced `__thread` with `thread_local` keyword for perf_context. Added per-level perf context for bloom filter and `Get` query.
+* Introduced `PerfContextByLevel` as part of `PerfContext` which allows storing perf context at each level. Also replaced `__thread` with `thread_local` keyword for perf_context.
 * With level_compaction_dynamic_level_bytes = true, level multiplier may be adjusted automatically when Level 0 to 1 compaction is lagged behind.
 * Introduced DB option `atomic_flush`. If true, RocksDB supports flushing multiple column families and atomically committing the result to MANIFEST. Useful when WAL is disabled.
 * Added `num_deletions` and `num_merge_operands` members to `TableProperties`.
