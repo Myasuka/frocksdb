@@ -44,13 +44,7 @@ struct PerfContextByLevel {
 struct PerfContext {
   ~PerfContext();
 
-  PerfContext() {}
-
-  PerfContext(const PerfContext&);
-  PerfContext& operator=(const PerfContext&);
-  PerfContext(PerfContext&&) noexcept;
-
-  void Reset();  // reset all performance counters to zero
+  void Reset(); // reset all performance counters to zero
 
   std::string ToString(bool exclude_zero_counters = false) const;
 
