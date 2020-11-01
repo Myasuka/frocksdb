@@ -436,7 +436,7 @@ struct BlockBasedTable::Rep {
   Rep(const ImmutableCFOptions& _ioptions, const EnvOptions& _env_options,
       const BlockBasedTableOptions& _table_opt,
       const InternalKeyComparator& _internal_comparator, bool skip_filters,
-      int _level, const bool _immortal_table)
+      const bool _immortal_table)
       : ioptions(_ioptions),
         env_options(_env_options),
         table_options(_table_opt),
@@ -449,7 +449,6 @@ struct BlockBasedTable::Rep {
         prefix_filtering(true),
         range_del_handle(BlockHandle::NullBlockHandle()),
         global_seqno(kDisableGlobalSequenceNumber),
-        level(_level),
         immortal_table(_immortal_table) {}
 
   const ImmutableCFOptions& ioptions;
@@ -523,10 +522,6 @@ struct BlockBasedTable::Rep {
   // A value of kDisableGlobalSequenceNumber means that this feature is disabled
   // and every key have it's own seqno.
   SequenceNumber global_seqno;
-
-  // the level when the table is opened, could potentially change when trivial
-  // move is involved
-  int level;
 
   // If false, blocks in this file are definitely all uncompressed. Knowing this
   // before reading individual blocks enables certain optimizations.

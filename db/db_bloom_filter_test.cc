@@ -172,38 +172,28 @@ TEST_F(DBBloomFilterTest, GetFilterByPrefixBloomCustomPrefixExtractor) {
 
     ASSERT_EQ("foo", Get("barbarbar"));
     ASSERT_EQ(TestGetTickerCount(options, BLOOM_FILTER_USEFUL), 0);
-    ASSERT_EQ(
-        0,
-        (*(get_perf_context()->level_to_perf_context))[0].bloom_filter_useful);
+    // TODO (Zhongyi): uncomment the asserts involving level_to_perf_context when per
+    // level perf context is enabled in block based table reader
+    // ASSERT_EQ(0, (*(get_perf_context()->level_to_perf_context))[0].bloom_filter_useful);
     ASSERT_EQ("foo2", Get("barbarbar2"));
     ASSERT_EQ(TestGetTickerCount(options, BLOOM_FILTER_USEFUL), 0);
-    ASSERT_EQ(
-        0,
-        (*(get_perf_context()->level_to_perf_context))[0].bloom_filter_useful);
+    // ASSERT_EQ(0, (*(get_perf_context()->level_to_perf_context))[0].bloom_filter_useful);
     ASSERT_EQ("NOT_FOUND", Get("barbarbar3"));
     ASSERT_EQ(TestGetTickerCount(options, BLOOM_FILTER_USEFUL), 0);
-    ASSERT_EQ(
-        0,
-        (*(get_perf_context()->level_to_perf_context))[0].bloom_filter_useful);
+    // ASSERT_EQ(0, (*(get_perf_context()->level_to_perf_context))[0].bloom_filter_useful);
 
     ASSERT_EQ("NOT_FOUND", Get("barfoofoo"));
     ASSERT_EQ(TestGetTickerCount(options, BLOOM_FILTER_USEFUL), 1);
-    ASSERT_EQ(
-        1,
-        (*(get_perf_context()->level_to_perf_context))[0].bloom_filter_useful);
+    // ASSERT_EQ(1, (*(get_perf_context()->level_to_perf_context))[0].bloom_filter_useful);
 
     ASSERT_EQ("NOT_FOUND", Get("foobarbar"));
     ASSERT_EQ(TestGetTickerCount(options, BLOOM_FILTER_USEFUL), 2);
-    ASSERT_EQ(
-        2,
-        (*(get_perf_context()->level_to_perf_context))[0].bloom_filter_useful);
+    // ASSERT_EQ(2, (*(get_perf_context()->level_to_perf_context))[0].bloom_filter_useful);
 
     ro.total_order_seek = true;
     ASSERT_TRUE(db_->Get(ro, "foobarbar", &value).IsNotFound());
     ASSERT_EQ(TestGetTickerCount(options, BLOOM_FILTER_USEFUL), 2);
-    ASSERT_EQ(
-        2,
-        (*(get_perf_context()->level_to_perf_context))[0].bloom_filter_useful);
+    // ASSERT_EQ(2, (*(get_perf_context()->level_to_perf_context))[0].bloom_filter_useful);
     get_perf_context()->Reset();
   }
 }
@@ -252,9 +242,7 @@ TEST_F(DBBloomFilterTest, GetFilterByPrefixBloom) {
     ro.total_order_seek = true;
     ASSERT_TRUE(db_->Get(ro, "foobarbar", &value).IsNotFound());
     ASSERT_EQ(TestGetTickerCount(options, BLOOM_FILTER_USEFUL), 2);
-    ASSERT_EQ(
-        2,
-        (*(get_perf_context()->level_to_perf_context))[0].bloom_filter_useful);
+    // ASSERT_EQ(2, (*(get_perf_context()->level_to_perf_context))[0].bloom_filter_useful);
     get_perf_context()->Reset();
   }
 }
@@ -412,13 +400,7 @@ TEST_F(DBBloomFilterTest, WholeKeyFilterProp) {
     ASSERT_EQ(TestGetTickerCount(options, BLOOM_FILTER_USEFUL), 12);
     ASSERT_EQ("bar", Get("barfoo"));
     ASSERT_EQ(TestGetTickerCount(options, BLOOM_FILTER_USEFUL), 12);
-    uint64_t bloom_filter_useful_all_levels = 0;
-    for (auto& kv : (*(get_perf_context()->level_to_perf_context))) {
-      if (kv.second.bloom_filter_useful > 0) {
-        bloom_filter_useful_all_levels += kv.second.bloom_filter_useful;
-      }
-    }
-    ASSERT_EQ(12, bloom_filter_useful_all_levels);
+    // ASSERT_EQ(12, (*(get_perf_context()->level_to_perf_context))[0].bloom_filter_useful);
     get_perf_context()->Reset();
   }
 }
@@ -548,9 +530,7 @@ TEST_F(DBBloomFilterTest, BloomFilterRate) {
       ASSERT_EQ("NOT_FOUND", Get(1, Key(i + 33333)));
     }
     ASSERT_GE(TestGetTickerCount(options, BLOOM_FILTER_USEFUL), maxKey * 0.98);
-    ASSERT_GE(
-        (*(get_perf_context()->level_to_perf_context))[0].bloom_filter_useful,
-        maxKey * 0.98);
+    // ASSERT_GE((*(get_perf_context()->level_to_perf_context))[0].bloom_filter_useful, maxKey*0.98);
     get_perf_context()->Reset();
   }
 }
@@ -1120,14 +1100,8 @@ TEST_F(DBBloomFilterTest, OptimizeFiltersForHits) {
   // no bloom filter. Most keys be checked bloom filters twice.
   ASSERT_GT(TestGetTickerCount(options, BLOOM_FILTER_USEFUL), 65000 * 2);
   ASSERT_LT(TestGetTickerCount(options, BLOOM_FILTER_USEFUL), 120000 * 2);
-  uint64_t bloom_filter_useful_all_levels = 0;
-  for (auto& kv : (*(get_perf_context()->level_to_perf_context))) {
-    if (kv.second.bloom_filter_useful > 0) {
-      bloom_filter_useful_all_levels += kv.second.bloom_filter_useful;
-    }
-  }
-  ASSERT_GT(bloom_filter_useful_all_levels, 65000 * 2);
-  ASSERT_LT(bloom_filter_useful_all_levels, 120000 * 2);
+  // ASSERT_GT((*(get_perf_context()->level_to_perf_context))[0].bloom_filter_useful, 65000*2);
+  // ASSERT_LT((*(get_perf_context()->level_to_perf_context))[0].bloom_filter_useful, 120000*2);
 
   for (int i = 0; i < numkeys; i += 2) {
     ASSERT_EQ(Get(1, Key(i)), "val");
